@@ -1,0 +1,34 @@
+{
+  "name": "translator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "ui/main.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build_dev": "node_modules\\.bin\\webpack --mode development",
+    "service": "npm run build_service && node server/server.js",
+    "build_service": "node_modules\\.bin\\tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/curiousgabel/translator.git"
+  },
+  "author": "Mike Gabel",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/curiousgabel/translator/issues"
+  },
+  "homepage": "https://github.com/curiousgabel/translator#readme",
+  "devDependencies": {
+    "ts-loader": "^8.0.3",
+    "typescript": "^4.0.2",
+    "webpack": "^4.44.1",
+    "webpack-cli": "^3.3.12"
+  },
+  "dependencies": {
+    "@google-cloud/translate": "^6.0.2",
+    "config": "^3.3.2",
+    "express": "^4.17.1",
+    "nodejs-websocket": "^1.7.2"
+  }
+}

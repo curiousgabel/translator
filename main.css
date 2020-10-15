@@ -1,0 +1,96 @@
+.chatbox {
+	border: 1px;
+	display:inline-block;
+	margin: 3px;
+	min-width: 400px;
+	min-height: 450px;
+}
+
+.messageList {
+	background-color: #222;
+	border-bottom: 1px dashed;
+	height:80%;
+	min-height: 380px;
+	overflow: auto;
+	padding-top: 1px;
+	width: 100%;
+}
+
+.messageBox {
+	background-color: blue;
+	border-bottom: 1px dashed;
+	display: flex;
+	height:10%;
+	min-height: 60px;
+	width: 100%;
+}
+.messageInput {
+	height: 100%;
+	width:100%;
+}
+
+.messageButton {
+	height: 100%;
+	width: 50px;
+}
+
+.message {
+	background: #FF0044 none no-repeat center;
+	background-size: cover;
+	border-radius: 5px;
+	color: #FFFFFF;
+	display: table;
+	line-height: 20px;
+	margin: 5px 5px 0px 5px;
+	padding: 10px;
+	text-align: left;
+    vertical-align: text-top;
+}
+
+.messageTime {
+	color: #afafaf;
+	float: left;
+	font-weight: 600;
+	width: 40px;
+}
+
+.messageText {
+	display: inline;
+	word-break: break-word;
+}
+
+.messageBoxHeader {
+	display: flex;
+    width: 100%;
+}
+
+.messageBoxHeaderText {
+	background-color: #FF0044;
+    color: white;
+    font-weight: 600;
+    padding: 2px 4px 2px 4px;
+    vertical-align: middle;
+    width: 100%;
+}
+
+.messageBoxTitle {
+	/*float: left;*/
+}
+
+.messageBoxChannel {
+	float: right;
+}
+
+.messageBoxCloseButton {
+	background-color: #222;
+    border-width: 0 0 0 3px;
+    color: #FFFFFF;
+    cursor: pointer;
+    float: right;
+    font-weight: 800;
+    padding-left: 5px;
+}
+
+.messageBoxCloseButton:hover{
+	background-color: #FF0044;
+}

@@ -1,0 +1,8 @@
+node_modules/
+lib/
+!ui/lib/
+!server/lib/
+config/**
+ui/config/**
+ui/**/*.js
+server/lib/**/*.js
