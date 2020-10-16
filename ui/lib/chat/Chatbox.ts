@@ -11,10 +11,10 @@ export class Chatbox {
 	private messageList:Node;
 	private inputBox:any;
 
-	private bus:MessageBus;
+	private bus:MessageBus<any>;
 	private language:Language;
 
-    constructor(id:string, language:string, bus:MessageBus) {
+    constructor(id:string, language:string, bus:MessageBus<any>) {
         this.containerId = id;
         this.bus = bus;
         this.setLanguage(language);

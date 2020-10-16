@@ -5,6 +5,7 @@
  */
 import {Chatbox} from "./lib/chat/Chatbox";
 import {Languages} from "./lib/language/Languages";
+import {Message} from "./lib/message/Message";
 import {RemoteMessageBus} from "./lib/message_bus/RemoteMessageBus";
 window.onload = function() {
     console.log('running setup');
@@ -38,7 +39,7 @@ function createMessageBox() {
     box.setAttribute('class', 'chatbox');
     box.setAttribute('id', language.value+Date.now());
     document.body.appendChild(box);
-    new Chatbox(box.id, box.getAttribute('language'), RemoteMessageBus.getInstance(channel));
+    new Chatbox(box.id, box.getAttribute('language'), RemoteMessageBus.getInstance<Message>(channel));
 }
 
 function getChannelId() {

@@ -1,7 +1,7 @@
 import {Message} from "../message/Message";
 import {MessageBus} from "./MessageBus";
 
-export class LocalMessageBus implements MessageBus {
+export class LocalMessageBus<T> implements MessageBus<T> {
     private static buses:any = {};
     
     private subscriptions:any;
@@ -12,9 +12,9 @@ export class LocalMessageBus implements MessageBus {
         this.subscriptions = [];
     }
 
-    static getInstance(channel:string):LocalMessageBus {
+    static getInstance<T>(channel:string):LocalMessageBus<T> {
         if (!LocalMessageBus.buses[channel]) {
-            LocalMessageBus.buses[channel] = new LocalMessageBus(channel);
+            LocalMessageBus.buses[channel] = new LocalMessageBus<T>(channel);
         }
 
         return LocalMessageBus.buses[channel]
@@ -44,7 +44,7 @@ export class LocalMessageBus implements MessageBus {
     }
 
     
-    publish(message:Message) {
+    publish(message:T) {
         let result = true;
 
         this.subscriptions.forEach(function(callback) {
