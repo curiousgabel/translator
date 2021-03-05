@@ -64,9 +64,42 @@ export class Chatbox {
 
     private setup() {
         this.container = document.getElementById(this.containerId);
+        this.container.appendChild(this.createSplashScreen());
         this.container.appendChild(this.createHeader());
         this.container.appendChild(this.createMessageList());
         this.container.appendChild(this.createMessageBox());
+    }
+
+    private createSplashScreen():Node {
+        let result = this.parseHTML(`<div class="splashScreen">
+            <label for="languageSelector">Select a Language</label>
+            <select id="languageSelector">
+                ${Object.keys(Languages).map(function (name) {
+                    return "<option value='" + name + "'>" + Languages[name].name + "</option>"           
+                }).join("")}
+            </select><br />
+            <label for="channelInput">Enter Channel</label>
+            <input type="text" id="channelInput"></input>
+            <input type="button" id="generateChannelId" value="Random ID" />
+            <br />
+            <input type="button" id="startChatButton" value="Start"/>
+        </div>`);
+        /*this.inputBox = result.getElementsByClassName('messageInput')[0] as Element;
+
+        let self = this;
+        this.inputBox.addEventListener("keypress", function (event) {
+        });*/
+        let self = this;
+        result.getElementById('generateChannelId').addEventListener('click', function () { 
+            self.generateChannelId();
+        });
+
+        result.getElementById('startChatButton').addEventListener('click', function () { 
+            self.hideSplashScreen();
+        });
+
+
+        return result.body.firstChild;
     }
 
     private createHeader():Node {
@@ -120,6 +153,20 @@ export class Chatbox {
         </div>`);
         
         this.messageList.appendChild(message.body.firstChild);
+    }
+
+    private generateChannelId() {
+        const request = new Request('http://localhost:8080/generateChannelId');
+        let self = this;
+        fetch(request)
+            .then(response => response.json())
+            .then(obj => {
+                (<HTMLInputElement>self.container.querySelector("#channelInput")).value = obj.channelId;
+            });
+    }
+
+    private hideSplashScreen() {
+        (<HTMLElement>this.container.querySelector(".splashScreen")).style.visibility = 'hidden';
     }
 
     private parseHTML(html:string):Document {
