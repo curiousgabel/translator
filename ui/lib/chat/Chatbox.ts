@@ -2,6 +2,7 @@ import {Language} from "../language/Language";
 import {Languages} from "../language/Languages";
 import {Message} from "../message/Message";
 import {MessageBus} from "../message_bus/MessageBus";
+import {RemoteMessageBus} from "../message_bus/RemoteMessageBus";
 import {ServiceTranslator} from "../translator/ServiceTranslator";
 
 // TODO: Improve almost everything in here. And maybe remove some log statements
@@ -12,23 +13,12 @@ export class Chatbox {
 	private inputBox:any;
 
 	private bus:MessageBus<any>;
+    private channelId:string;
 	private language:Language;
 
-    constructor(id:string, language:string, bus:MessageBus<any>) {
+    constructor(id:string) {
         this.containerId = id;
-        this.bus = bus;
-        this.setLanguage(language);
         this.setup();
-
-        let self = this;
-        this.bus.subscribe(function (m) { self.receive(m); });
-    }
-
-    setLanguage(name:string) {
-        let language = Languages[name];
-        if (language) {
-            this.language = language;
-        }
     }
     
     public receive(message:Message) {
@@ -62,6 +52,17 @@ export class Chatbox {
         this.container.remove();
     }
 
+    private start() {
+        const language = (<HTMLInputElement>this.container.querySelector('#languageSelector')).value;
+        const channel = (<HTMLInputElement>this.container.querySelector('#channelInput')).value;
+
+        const bus = RemoteMessageBus.getInstance<Message>(channel);
+        this.setLanguage(language);
+        this.setBus(bus);
+
+        this.hideSplashScreen();
+    }
+
     private setup() {
         this.container = document.getElementById(this.containerId);
         this.container.appendChild(this.createSplashScreen());
@@ -71,31 +72,32 @@ export class Chatbox {
     }
 
     private createSplashScreen():Node {
+        const language = this.getDefaultLanguage();
+        console.log('default language: '+language);
+        const channel = this.getDefaultChannel();
         let result = this.parseHTML(`<div class="splashScreen">
-            <label for="languageSelector">Select a Language</label>
-            <select id="languageSelector">
-                ${Object.keys(Languages).map(function (name) {
-                    return "<option value='" + name + "'>" + Languages[name].name + "</option>"           
-                }).join("")}
-            </select><br />
-            <label for="channelInput">Enter Channel</label>
-            <input type="text" id="channelInput"></input>
-            <input type="button" id="generateChannelId" value="Random ID" />
-            <br />
-            <input type="button" id="startChatButton" value="Start"/>
+            <div class='splashScreenContents'>
+                <div><label for="languageSelector">Select a Language</label></div>
+                <select id="languageSelector">
+                    ${Object.keys(Languages).map(function (name) {
+                        return "<option value='" + name + "'"+ (name==language ? 'selected' : '') + ">" + Languages[name].name + "</option>"           
+                    }).join("")}
+                </select><br />
+                <div><label for="channelInput">Enter Channel</label></div>
+                <input type="text" id="channelInput" value="${channel}"></input>
+                <input type="button" id="generateChannelId" value="Random ID" />
+                <br />
+                <input type="button" id="startChatButton" value="Start"/>
+            </div>
         </div>`);
-        /*this.inputBox = result.getElementsByClassName('messageInput')[0] as Element;
-
-        let self = this;
-        this.inputBox.addEventListener("keypress", function (event) {
-        });*/
+        
         let self = this;
         result.getElementById('generateChannelId').addEventListener('click', function () { 
             self.generateChannelId();
         });
 
         result.getElementById('startChatButton').addEventListener('click', function () { 
-            self.hideSplashScreen();
+            self.start();
         });
 
 
@@ -105,8 +107,8 @@ export class Chatbox {
     private createHeader():Node {
         let result = this.parseHTML(`<div class="messageBoxHeader">
             <div class="messageBoxHeaderText">
-                <span class="messageBoxTitle">Language: ${this.language.name}</span>
-                <span class="messageBoxChannel">Channel: ${this.bus.channel}</span>
+                <span class="messageBoxTitle">Language: <span id="languageValue"></span></span>
+                <span class="messageBoxChannel">Channel: <span id="channelValue"></span></span>
             </div>
             <input type="button" class="messageBoxCloseButton" value="X">
         </div>`);
@@ -136,6 +138,14 @@ export class Chatbox {
         result.getElementsByClassName('messageButton')[0].addEventListener('click', function () { self.send(); });
 
         return result.body.firstChild;
+    }
+
+    private getDefaultLanguage():string {
+        return this.container.attributes['language'].value || '';
+    }
+
+    private getDefaultChannel():string {
+        return this.container.attributes['channel'].value || '';
     }
 
     private drawMessage(text:string, hoverText:string) {
@@ -171,5 +181,30 @@ export class Chatbox {
 
     private parseHTML(html:string):Document {
         return new DOMParser().parseFromString(html, 'text/html');
+    }
+
+    private setLanguage(name:string) {
+        let language = Languages[name];
+        if (language) {
+            this.language = language;
+            this.updateLanguageUi();
+        }
+    }
+
+    private updateLanguageUi() {
+        this.container.querySelector('#languageValue').innerHTML = this.language.name;
+    }
+
+    private setBus(bus:MessageBus<any>) {
+        this.bus = bus;
+
+        let self = this;
+        this.bus.subscribe(function (m) { self.receive(m); });
+
+        this.updateChannelUi();
+    }
+
+    private updateChannelUi() {
+        this.container.querySelector('#channelValue').innerHTML = this.bus.channel;
     }
 }
