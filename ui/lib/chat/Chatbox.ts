@@ -5,7 +5,13 @@ import {MessageBus} from "../message_bus/MessageBus";
 import {RemoteMessageBus} from "../message_bus/RemoteMessageBus";
 import {ServiceTranslator} from "../translator/ServiceTranslator";
 
-// TODO: Improve almost everything in here. And maybe remove some log statements
+/* TODO:
+ * Instantiate the message bus dynamically from the chatbox tag
+ * Move relevant IDs/selectors to class-level constants
+ * Pretty-up the splash screen
+ * Add a name input to the messages?
+ * Put the close button over the splash screen?
+*/
 export class Chatbox {
 	private containerId:string;
 	private container:Element;
@@ -65,87 +71,63 @@ export class Chatbox {
 
     private setup() {
         this.container = document.getElementById(this.containerId);
-        this.container.appendChild(this.createSplashScreen());
-        this.container.appendChild(this.createHeader());
-        this.container.appendChild(this.createMessageList());
-        this.container.appendChild(this.createMessageBox());
-    }
-
-    private createSplashScreen():Node {
-        const language = this.getDefaultLanguage();
-        console.log('default language: '+language);
-        const channel = this.getDefaultChannel();
-        let result = this.parseHTML(`<div class="splashScreen">
-            <div class='splashScreenContents'>
-                <div><label for="languageSelector">Select a Language</label></div>
-                <select id="languageSelector">
-                    ${Object.keys(Languages).map(function (name) {
-                        return "<option value='" + name + "'"+ (name==language ? 'selected' : '') + ">" + Languages[name].name + "</option>"           
-                    }).join("")}
-                </select><br />
-                <div><label for="channelInput">Enter Channel</label></div>
-                <input type="text" id="channelInput" value="${channel}"></input>
-                <input type="button" id="generateChannelId" value="Random ID" />
-                <br />
-                <input type="button" id="startChatButton" value="Start"/>
-            </div>
-        </div>`);
-        
         let self = this;
-        result.getElementById('generateChannelId').addEventListener('click', function () { 
+        const language = this.getDefaultLanguage();
+        const channel = this.getDefaultChannel();
+
+        const template = `<div class='chatbox'>
+            <div class="splashScreen">
+                <div class='splashScreenContents'>
+                    <div><label for="languageSelector">Select a Language</label></div>
+                    <select id="languageSelector">
+                        ${Object.keys(Languages).map(function (name) {
+                            return "<option value='" + name + "'"+ (name==language ? 'selected' : '') + ">" + Languages[name].name + "</option>"           
+                        }).join("")}
+                    </select><br />
+                    <div><label for="channelInput">Enter Channel</label></div>
+                    <input type="text" id="channelInput" value="${channel}"></input>
+                    <input type="button" id="generateChannelId" value="Random ID" />
+                    <br />
+                    <input type="button" id="startChatButton" value="Start"/>
+                </div>
+            </div>
+            <div class="messageBoxHeader">
+                <div class="messageBoxHeaderText">
+                    <span class="messageBoxTitle">Language: <span id="languageValue"></span></span>
+                    <span class="messageBoxChannel">Channel: <span id="channelValue"></span></span>
+                </div>
+                <input type="button" class="messageBoxCloseButton" value="X">
+            </div>
+            <div class="messageList"></div>
+            <div class="messageBox">
+                <textarea class="messageInput"></textarea>
+                <button class="messageButton" type="Button">Send</button>
+            </div>
+        </div>`;
+
+        const box = this.parseHTML(template);
+
+        // Wire up the splashScreen
+        box.getElementById('generateChannelId').addEventListener('click', function () { 
             self.generateChannelId();
         });
 
-        result.getElementById('startChatButton').addEventListener('click', function () { 
+        box.getElementById('startChatButton').addEventListener('click', function () { 
             self.start();
         });
 
+        // Wire up the createHeader
+        box.getElementsByClassName('messageBoxCloseButton')[0].addEventListener('click', function () { self.destroy(); });
 
-        return result.body.firstChild;
-    }
+        // Wire up the input components
+        this.inputBox = box.getElementsByClassName('messageInput')[0] as Element;
 
-    private createHeader():Node {
-        let result = this.parseHTML(`<div class="messageBoxHeader">
-            <div class="messageBoxHeaderText">
-                <span class="messageBoxTitle">Language: <span id="languageValue"></span></span>
-                <span class="messageBoxChannel">Channel: <span id="channelValue"></span></span>
-            </div>
-            <input type="button" class="messageBoxCloseButton" value="X">
-        </div>`);
-        let self = this;
-        result.getElementsByClassName('messageBoxCloseButton')[0].addEventListener('click', function () { self.destroy(); });
-        
-        return result.body.firstChild;
-    }
-
-    private createMessageList():Node {
-        const messageList = this.parseHTML(`<div class="messageList"></div>`);
-        this.messageList = messageList.body.firstChild;
-        
-        return this.messageList;
-    }
-
-    private createMessageBox():Node {
-        let result = this.parseHTML(`<div class="messageBox">
-            <textarea class="messageInput"></textarea>
-            <button class="messageButton" type="Button">Send</button>
-        </div>`);
-        this.inputBox = result.getElementsByClassName('messageInput')[0] as Element;
-
-        let self = this;
         this.inputBox.addEventListener("keypress", function (event) {
         });
-        result.getElementsByClassName('messageButton')[0].addEventListener('click', function () { self.send(); });
+        box.getElementsByClassName('messageButton')[0].addEventListener('click', function () { self.send(); });
 
-        return result.body.firstChild;
-    }
-
-    private getDefaultLanguage():string {
-        return this.container.attributes['language'].value || '';
-    }
-
-    private getDefaultChannel():string {
-        return this.container.attributes['channel'].value || '';
+        // Add it all to the container
+        this.container.appendChild(box.body.firstChild);
     }
 
     private drawMessage(text:string, hoverText:string) {
@@ -162,7 +144,15 @@ export class Chatbox {
             </div>
         </div>`);
         
-        this.messageList.appendChild(message.body.firstChild);
+        this.container.querySelector('.messageList').appendChild(message.body.firstChild);
+    }
+
+    private updateLanguageUi() {
+        this.container.querySelector('#languageValue').innerHTML = this.language.name;
+    }
+
+    private updateChannelUi() {
+        this.container.querySelector('#channelValue').innerHTML = this.bus.channel;
     }
 
     private generateChannelId() {
@@ -183,16 +173,20 @@ export class Chatbox {
         return new DOMParser().parseFromString(html, 'text/html');
     }
 
+    private getDefaultLanguage():string {
+        return this.container.attributes['language'].value || 'english';
+    }
+
+    private getDefaultChannel():string {
+        return this.container.attributes['channel'].value || '';
+    }
+
     private setLanguage(name:string) {
         let language = Languages[name];
         if (language) {
             this.language = language;
             this.updateLanguageUi();
         }
-    }
-
-    private updateLanguageUi() {
-        this.container.querySelector('#languageValue').innerHTML = this.language.name;
     }
 
     private setBus(bus:MessageBus<any>) {
@@ -202,9 +196,5 @@ export class Chatbox {
         this.bus.subscribe(function (m) { self.receive(m); });
 
         this.updateChannelUi();
-    }
-
-    private updateChannelUi() {
-        this.container.querySelector('#channelValue').innerHTML = this.bus.channel;
     }
 }

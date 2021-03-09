@@ -23,8 +23,7 @@ function createMessageBox() {
     box.setAttribute('language', language);
     box.setAttribute('channel', channel);
     box.setAttribute('messageBus', 'RemoteMessageBus');
-    box.setAttribute('style', "width:300px;");
-    box.setAttribute('class', 'chatbox');
+    box.setAttribute('style', "width:300px; display:inline-block; margin-right:110px");
     box.setAttribute('id', language+Date.now());
     document.body.appendChild(box);
 
