@@ -18,24 +18,27 @@
 }
 
 .chatbox > .splashScreen:before {
-	content: '';                  /* [3] */
-    display: inline-block;        /* [4] */
-    vertical-align: middle;       
-    height: 40%;    
+	content: '';
+    display: inline-block;
+    height: 40%;
+    vertical-align: middle;
 }
 
-.chatbox > .splashScreen > .splashScreenContents > div {
-	display: inline;
+.chatbox > .splashScreen > .splashScreenContents {
+	text-align: -webkit-center;
+}
+
+.chatbox > .splashScreen > .splashScreenContents > table > tbody > tr > td:first-child {
 	padding-right: 3px;
 	text-align:right;
 	width: 120px;
 }
 
-.chatbox > .splashScreen > .splashScreenContents > #languageSelector {
+#languageSelector {
 	width: 190px;
 }
 
-.chatbox > .splashScreen > .splashScreenContents > #channelInput {
+#channelInput {
 	width: 100px;
 }
 

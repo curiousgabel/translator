@@ -22,7 +22,7 @@ function createMessageBox() {
 
     box.setAttribute('language', language);
     box.setAttribute('channel', channel);
-    box.setAttribute('messageBus', 'RemoteMessageBus');
+    // box.setAttribute('messageBus', 'RemoteMessageBus'); // Local message bus used when this is commented out
     box.setAttribute('style', "width:300px; display:inline-block; margin-right:110px");
     box.setAttribute('id', language+Date.now());
     document.body.appendChild(box);

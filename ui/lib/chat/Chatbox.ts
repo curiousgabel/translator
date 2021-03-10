@@ -2,13 +2,13 @@ import {Language} from "../language/Language";
 import {Languages} from "../language/Languages";
 import {Message} from "../message/Message";
 import {MessageBus} from "../message_bus/MessageBus";
+import {LocalMessageBus} from "../message_bus/LocalMessageBus";
 import {RemoteMessageBus} from "../message_bus/RemoteMessageBus";
 import {ServiceTranslator} from "../translator/ServiceTranslator";
 
 /* TODO:
- * Instantiate the message bus dynamically from the chatbox tag
  * Move relevant IDs/selectors to class-level constants
- * Pretty-up the splash screen
+ * Get the lanaguage list from the google API and/or display languages in their mother tongue
  * Add a name input to the messages?
  * Put the close button over the splash screen?
 */
@@ -60,9 +60,8 @@ export class Chatbox {
 
     private start() {
         const language = (<HTMLInputElement>this.container.querySelector('#languageSelector')).value;
-        const channel = (<HTMLInputElement>this.container.querySelector('#channelInput')).value;
 
-        const bus = RemoteMessageBus.getInstance<Message>(channel);
+        const bus = this.instantiateBus();
         this.setLanguage(language);
         this.setBus(bus);
 
@@ -78,15 +77,26 @@ export class Chatbox {
         const template = `<div class='chatbox'>
             <div class="splashScreen">
                 <div class='splashScreenContents'>
-                    <div><label for="languageSelector">Select a Language</label></div>
-                    <select id="languageSelector">
-                        ${Object.keys(Languages).map(function (name) {
-                            return "<option value='" + name + "'"+ (name==language ? 'selected' : '') + ">" + Languages[name].name + "</option>"           
-                        }).join("")}
-                    </select><br />
-                    <div><label for="channelInput">Enter Channel</label></div>
-                    <input type="text" id="channelInput" value="${channel}"></input>
-                    <input type="button" id="generateChannelId" value="Random ID" />
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><label for="languageSelector">Select a Language</label></td>
+                                <td><select id="languageSelector">
+                                    ${Object.keys(Languages).map(function (name) {
+                                        return "<option value='" + name + "'"+ (name==language ? 'selected' : '') + ">" + Languages[name].name + "</option>"           
+                                    }).join("")}
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><label for="channelInput">Enter Channel</label></td>
+                                <td>
+                                    <input type="text" id="channelInput" value="${channel}"></input>
+                                    <input type="button" id="generateChannelId" value="Random ID" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                     <br />
                     <input type="button" id="startChatButton" value="Start"/>
                 </div>
@@ -179,6 +189,27 @@ export class Chatbox {
 
     private getDefaultChannel():string {
         return this.container.attributes['channel'].value || '';
+    }
+
+    private instantiateBus():MessageBus<Message> {
+        const defaultBusType = this.container.attributes['messageBus'];
+        const busType:string = defaultBusType ? defaultBusType.value : 'LocalMessageBus';
+        const channel = (<HTMLInputElement>this.container.querySelector('#channelInput')).value;
+        let bus:MessageBus<Message>;
+
+        // Ideally do this more dynamically but this will work for now
+        switch (busType) {
+            case 'RemoteMessageBus':
+                bus = RemoteMessageBus.getInstance<Message>(channel);
+                break;
+            case 'LocalMessageBus':
+                bus = LocalMessageBus.getInstance<Message>(channel);
+                break;
+            default:
+                throw new Error(`Invalid message bus type: ${busType}`);
+        }
+
+        return bus;
     }
 
     private setLanguage(name:string) {
