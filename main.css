@@ -4,7 +4,44 @@
 	margin: 3px;
 	min-width: 400px;
 	min-height: 450px;
+	position: relative;
 }
+
+.chatbox > .splashScreen {
+	background-color: #ddddff;
+	height: 100%;
+	opacity: 95%;
+	position: absolute;
+	text-align: center;
+	transition: visibility 300ms cubic-bezier(0.17, 0.04, 0.03, 0.94) 0s;
+	width: 100%;
+}
+
+.chatbox > .splashScreen:before {
+	content: '';
+    display: inline-block;
+    height: 40%;
+    vertical-align: middle;
+}
+
+.chatbox > .splashScreen > .splashScreenContents {
+	text-align: -webkit-center;
+}
+
+.chatbox > .splashScreen > .splashScreenContents > table > tbody > tr > td:first-child {
+	padding-right: 3px;
+	text-align:right;
+	width: 120px;
+}
+
+#languageSelector {
+	width: 190px;
+}
+
+#channelInput {
+	width: 100px;
+}
+
 
 .messageList {
 	background-color: #222;

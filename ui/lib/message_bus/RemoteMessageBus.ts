@@ -5,7 +5,7 @@ import {Config} from "./config/Config";
 // TODO: repalce the ../s with a reference to the root directory
 const config:Config = require('../../config/message_bus.json');
 
-export class RemoteMessageBus implements MessageBus {
+export class RemoteMessageBus<T> implements MessageBus<T> {
     // TODO: add error handling for not having the config value
     private url:string = config.remoteMessageBus.url ;
     private socket:WebSocket;
@@ -15,8 +15,8 @@ export class RemoteMessageBus implements MessageBus {
         this.channel = channel;
     }
 
-    static getInstance(channel:string) {
-        return new RemoteMessageBus(channel);
+    static getInstance<T>(channel:string):MessageBus<T> {
+        return new RemoteMessageBus<T>(channel);
     }
 
     subscribe(callback:Function) {
@@ -39,7 +39,7 @@ export class RemoteMessageBus implements MessageBus {
         return true;
     }
 
-    publish(message:Message) {
+    publish(message:T) {
         this.socket.send(JSON.stringify(message));
 
         return true;
