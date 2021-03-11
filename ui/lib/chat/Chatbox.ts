@@ -31,7 +31,7 @@ export class Chatbox {
         console.log('Recieved message ', message);
         let text = message.text;
         let language = message.language;
-        const hoverText = `${language.name}: ${text}`;
+        const hoverText = `${this.language.languageMap.get(language.apiName)}: ${text}`;
         if (language.name != this.language.name) {
             const self = this;
             const response = ServiceTranslator.translate(language, this.language, text);
@@ -184,7 +184,7 @@ export class Chatbox {
     }
 
     private getDefaultLanguage():string {
-        return this.container.attributes['language'].value || 'english';
+        return this.container.attributes['language'].value || 'en';
     }
 
     private getDefaultChannel():string {
