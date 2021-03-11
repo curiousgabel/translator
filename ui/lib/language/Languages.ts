@@ -23,7 +23,7 @@ export const Languages: Record<string, Language> = {
     		['bg','Búlgaro']
     	])),
     fr: new Language(
-    	'français',
+    	'Français',
     	'fr',
     	new Map([
     		['en','Anglais'],
